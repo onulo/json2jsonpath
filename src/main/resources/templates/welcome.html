@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1>Json to Jsonpath generator</h1>
+
+<div>Json input:</div>
+<div>
+    <form method="POST" th:action="@{/}">
+        <textarea name="json" cols="100" rows="30" th:text="${json}"></textarea>
+        <div><input type="submit"/></div>
+    </form>
+
+
+    <div th:each="line : ${output}">
+        <span th:text="${line}"> </span>
+    </div>
+
+    <div th:if="${error}">
+        <div>Json is not valid...</div>
+        <span th:text="${error}"></span>
+    </div>
+
+
+</div>
+
+
+</body>
+</html>
