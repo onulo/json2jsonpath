@@ -1,32 +1,71 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Getting Started: Serving Web Content</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>JSONPath generator</title>
 </head>
-<body>
-<h1>Json to Jsonpath generator</h1>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">JSONPath generator</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
 
-<div>Json input:</div>
-<div>
-    <form method="POST" th:action="@{/}">
-        <textarea name="json" cols="100" rows="30" th:text="${json}"></textarea>
-        <div><input type="submit"/></div>
-    </form>
-
-
-    <div th:each="line : ${output}">
-        <span th:text="${line}"> </span>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
     </div>
+</nav>
 
-    <div th:if="${error}">
-        <div>Json is not valid...</div>
-        <span th:text="${error}"></span>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <p class="lead mt-4">Generates JSONPath with values for all element in provided json.</p>
+            <form class="form-group py-3" method="POST" th:action="@{/}">
+                <textarea class="form-control z-depth-1 shadow-sm" id="jsonInput" name="json" rows="20" th:text="${json}" placeholder="Place a valid JSON here..."></textarea>
+                <button class="btn btn-primary btn-lg my-3" type="submit">Submit</button>
+            </form>
+        </div>
     </div>
-
-
 </div>
 
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12 mt-3">
+            <div th:each="line : ${output}" th:text="${line}"> </div>
+        </div>
 
+    </div>
+</div>
+
+<div class="container fixed-bottom">
+    <div class="alert alert-danger shadow-sm my-3" role="alert" th:if="${error}" th:text="${error}">
+        A simple danger alert—check it out!
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
 </body>
 </html>

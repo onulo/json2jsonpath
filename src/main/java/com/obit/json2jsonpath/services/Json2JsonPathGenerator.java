@@ -88,7 +88,6 @@ public class Json2JsonPathGenerator {
         stringBuilder.append(EQUALS);
         stringBuilder.append(value);
         output.add(stringBuilder.toString());
-        System.out.println(stringBuilder.toString());
     }
 
     public List<String> getOutput() {
