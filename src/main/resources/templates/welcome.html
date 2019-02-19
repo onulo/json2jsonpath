@@ -34,9 +34,10 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-12 text-center">
-            <p class="lead mt-4">Generates JSONPath with values for all element in provided json.</p>
+            <p class="lead mt-4">Generate List of JSONPath with values for all elements in provided json.</p>
             <form class="form-group py-3" method="POST" th:action="@{/}">
-                <textarea class="form-control z-depth-1 shadow-sm" id="jsonInput" name="json" rows="20" th:text="${json}" placeholder="Place a valid JSON here..."></textarea>
+                <textarea class="form-control z-depth-1 shadow-sm" id="jsonInput" name="json" rows="20"
+                          th:text="${json}" placeholder="Place a valid JSON here..."></textarea>
                 <button class="btn btn-primary btn-lg my-3" type="submit">Submit</button>
             </form>
         </div>
@@ -45,8 +46,8 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-lg-12 mt-3">
-            <div th:each="line : ${output}" th:text="${line}"> </div>
+        <div class="col-lg-12 mb-5">
+            <div th:each="line : ${output}" th:text="${line}"></div>
         </div>
 
     </div>
