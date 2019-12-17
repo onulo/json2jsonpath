@@ -31,7 +31,7 @@ public class Json2JsonPathGeneratorTest {
         assertEquals("$.menu.popup.menuitem[2].value[0].name=onulo", output.get(12));
         assertEquals("$.menu.popup.menuitem[2].value[0].id=5", output.get(13));
         assertEquals("$.menu.popup.menuitem[2].value[1].name=peto", output.get(14));
-        assertEquals("$.menu.popup.menuitem[2].value[1].id=5", output.get(14));
+        assertEquals("$.menu.popup.menuitem[2].value[1].id=5", output.get(15));
         assertEquals("$.menu.id=file", output.get(16));
         assertEquals("$.menu.value=File", output.get(17));
 
