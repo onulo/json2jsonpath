@@ -1,28 +1,29 @@
-package com.obit.json2jsonpath.services;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
+package com.obit.json2jsonpath.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-@Component()
-@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class Json2JsonPathGenerator {
+@RequiredArgsConstructor
+public class JsonPathGenerator {
+
     private static final String PREFIX = "$.";
     private static final String DELIMITER = ".";
     private static final String EQUALS = "=";
-    private List<PathElement> pathElements = new ArrayList<>();
-    private List<String> output = new ArrayList<>();
 
-    public List<String> generate(JSONObject jsonObject) {
+    private final JSONObject jsonObject;
+    private final List<PathElement> pathElements = new ArrayList<>();
+
+    private final List<String> output = new ArrayList<>();
+
+    public List<String> generate() {
         iterateOverJson(jsonObject);
-        return getOutput();
+        return Collections.unmodifiableList(output);
     }
 
     private void iterateOverJson(JSONObject jsonObject) {
@@ -89,9 +90,4 @@ public class Json2JsonPathGenerator {
         stringBuilder.append(value);
         output.add(stringBuilder.toString());
     }
-
-    public List<String> getOutput() {
-        return output;
-    }
-
 }

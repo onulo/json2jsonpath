@@ -1,6 +1,6 @@
 package com.obit.json2jsonpath;
 
-import com.obit.json2jsonpath.services.Json2JsonPathGenerator;
+import com.obit.json2jsonpath.component.JsonPathGenerator;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -8,13 +8,13 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class Json2JsonPathGeneratorTest {
+public class JsonPathGeneratorTest {
 
     @Test
     public void test() {
-        Json2JsonPathGenerator json2JsonPathGenerator = new Json2JsonPathGenerator();
+        JsonPathGenerator jsonPathGenerator = new JsonPathGenerator(getJsonObject());
 
-        List<String> output = json2JsonPathGenerator.generate(getJsonObject());
+        List<String> output = jsonPathGenerator.generate();
 
         assertEquals("$.menu.simpleArray=[\"ABC\",\"DEF\",\"GHI\"]", output.get(0));
         assertEquals("$.menu.popup.menuitem[0].onclick=CreateNewDoc()", output.get(1));
@@ -39,9 +39,9 @@ public class Json2JsonPathGeneratorTest {
 
     @Test
     public void test2() {
-        Json2JsonPathGenerator json2JsonPathGenerator = new Json2JsonPathGenerator();
+        JsonPathGenerator jsonPathGenerator = new JsonPathGenerator(getJsonExample2());
 
-        List<String> output = json2JsonPathGenerator.generate(getJsonExample2());
+        List<String> output = jsonPathGenerator.generate();
     }
 
     private JSONObject getJsonObject() {
@@ -332,5 +332,4 @@ public class Json2JsonPathGeneratorTest {
                 "  ]\n" +
                 "}");
     }
-
 }
