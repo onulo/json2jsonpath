@@ -1,50 +1,175 @@
 package com.obit.json2jsonpath;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.obit.json2jsonpath.component.JsonPathGenerator;
-import org.json.JSONObject;
-import org.junit.Test;
-
 import java.util.List;
-
-import static org.junit.Assert.*;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
 public class JsonPathGeneratorTest {
 
     @Test
-    public void test() {
-        JsonPathGenerator jsonPathGenerator = new JsonPathGenerator(getJsonObject());
+    void testJsonBasic() {
+        final JSONObject source = new JSONObject(""
+                + "{\n"
+                + "\t\"name\": \"Ondrej\",\n"
+                + "\t\"age\": 30\n"
+                + "}\n");
 
-        List<String> output = jsonPathGenerator.generate();
+        final List<String> target = JsonPathGenerator.from(source).generate();
 
-        assertEquals("$.menu.simpleArray=[\"ABC\",\"DEF\",\"GHI\"]", output.get(0));
-        assertEquals("$.menu.popup.menuitem[0].onclick=CreateNewDoc()", output.get(1));
-        assertEquals("$.menu.popup.menuitem[0].value[0].name=onulo", output.get(2));
-        assertEquals("$.menu.popup.menuitem[0].value[0].id=5", output.get(3));
-        assertEquals("$.menu.popup.menuitem[0].value[1].name=peto", output.get(4));
-        assertEquals("$.menu.popup.menuitem[0].value[1].id=5", output.get(5));
-        assertEquals("$.menu.popup.menuitem[1].onclick=OpenDoc()", output.get(6));
-        assertEquals("$.menu.popup.menuitem[1].value[0].name=onulo", output.get(7));
-        assertEquals("$.menu.popup.menuitem[1].value[0].id=5", output.get(8));
-        assertEquals("$.menu.popup.menuitem[1].value[1].name=peto", output.get(9));
-        assertEquals("$.menu.popup.menuitem[1].value[1].id=5", output.get(10));
-        assertEquals("$.menu.popup.menuitem[2].onclick=CloseDoc()", output.get(11));
-        assertEquals("$.menu.popup.menuitem[2].value[0].name=onulo", output.get(12));
-        assertEquals("$.menu.popup.menuitem[2].value[0].id=5", output.get(13));
-        assertEquals("$.menu.popup.menuitem[2].value[1].name=peto", output.get(14));
-        assertEquals("$.menu.popup.menuitem[2].value[1].id=5", output.get(15));
-        assertEquals("$.menu.id=file", output.get(16));
-        assertEquals("$.menu.value=File", output.get(17));
-
+        assertThat(target).hasSize(2);
+        assertThat(target.get(0)).isEqualTo("$.name=Ondrej");
+        assertThat(target.get(1)).isEqualTo("$.age=30");
     }
 
     @Test
-    public void test2() {
-        JsonPathGenerator jsonPathGenerator = new JsonPathGenerator(getJsonExample2());
+    void testJsonWithComplexElement() {
+        final JSONObject source = new JSONObject(""
+                + "{\n"
+                + "\t\"name\": \"Ondrej\",\n"
+                + "\t\"age\": 30,\n"
+                + "\t\"complexElement\": {\n"
+                + "\t\t\"encodedKey\": \"key\",\n"
+                + "\t\t\"name\": \"Reminder Letter fee\",\n"
+                + "\t\t\"amount\": 3.5\n"
+                + "\t}\n"
+                + "}");
 
-        List<String> output = jsonPathGenerator.generate();
+        final List<String> target = JsonPathGenerator.from(source).generate();
+
+        assertThat(target).hasSize(5);
+        assertThat(target.get(0)).isEqualTo("$.complexElement.amount=3.5");
+        assertThat(target.get(1)).isEqualTo("$.complexElement.name=Reminder Letter fee");
+        assertThat(target.get(2)).isEqualTo("$.complexElement.encodedKey=key");
+        assertThat(target.get(3)).isEqualTo("$.name=Ondrej");
+        assertThat(target.get(4)).isEqualTo("$.age=30");
     }
 
-    private JSONObject getJsonObject() {
+    @Test
+    void testJsonWithTwoComplexElements() {
+        final JSONObject source = new JSONObject(""
+                + "{\n"
+                + "\t\"name\": \"Ondrej\",\n"
+                + "\t\"age\": 30,\n"
+                + "\t\"complex1\": {\n"
+                + "\t\t\"encodedKey\": \"key\",\n"
+                + "\t\t\"amount\": 3.5\n"
+                + "\t},\n"
+                + "\t\"complex2\": {\n"
+                + "\t\t\"complexName\": \"complexName\"\n"
+                + "\t}\n"
+                + "}");
+
+        final List<String> target = JsonPathGenerator.from(source).generate();
+
+        assertThat(target).hasSize(5);
+        assertThat(target.get(0)).isEqualTo("$.complex1.amount=3.5");
+        assertThat(target.get(1)).isEqualTo("$.complex1.encodedKey=key");
+        assertThat(target.get(2)).isEqualTo("$.complex2.complexName=complexName");
+        assertThat(target.get(3)).isEqualTo("$.name=Ondrej");
+        assertThat(target.get(4)).isEqualTo("$.age=30");
+    }
+
+    @Test
+    public void testJsonWithSimpleArray() {
+        final JSONObject source = new JSONObject("{\n"
+                + "\t\"glossary\": {\n"
+                + "\t\t\"title\": \"example glossary\",\n"
+                + "\t\t\"GlossDiv\": {\n"
+                + "\t\t\t\"title\": \"S\",\n"
+                + "\t\t\t\"GlossList\": {\n"
+                + "\t\t\t\t\"GlossEntry\": {\n"
+                + "\t\t\t\t\t\"ID\": \"SGML\",\n"
+                + "\t\t\t\t\t\"GlossDef\": {\n"
+                + "\t\t\t\t\t\t\"para\": \"A meta-markup\",\n"
+                + "\t\t\t\t\t\t\"GlossSeeAlso\": [\n"
+                + "\t\t\t\t\t\t\t\"GML\",\n"
+                + "\t\t\t\t\t\t\t\"XML\"\n"
+                + "\t\t\t\t\t\t]\n"
+                + "\t\t\t\t\t},\n"
+                + "\t\t\t\t\t\"GlossSee\": \"markup\"\n"
+                + "\t\t\t\t}\n"
+                + "\t\t\t}\n"
+                + "\t\t}\n"
+                + "\t}\n"
+                + "}");
+
+        final List<String> target = JsonPathGenerator.from(source).generate();
+
+        assertThat(target).hasSize(6);
+        assertThat(target.get(0)).isEqualTo("$.glossary.title=example glossary");
+        assertThat(target.get(1)).isEqualTo("$.glossary.GlossDiv.GlossList.GlossEntry.GlossSee=markup");
+        assertThat(target.get(2)).isEqualTo("$.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.para=A meta-markup");
+        assertThat(target.get(3)).isEqualTo("$.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso=[\"GML\",\"XML\"]");
+        assertThat(target.get(4)).isEqualTo("$.glossary.GlossDiv.GlossList.GlossEntry.ID=SGML");
+        assertThat(target.get(5)).isEqualTo("$.glossary.GlossDiv.title=S");
+    }
+
+    @Test
+    public void testJsonWithComplexArray() {
+        final JSONObject source = new JSONObject("{\n"
+                + "\t\"menu\": {\n"
+                + "\t\t\"id\": \"file\",\n"
+                + "\t\t\"value\": \"File\",\n"
+                + "\t\t\"popup\": {\n"
+                + "\t\t\t\"menuitem\": [\n"
+                + "\t\t\t\t{\n"
+                + "\t\t\t\t\t\"value\": \"New\",\n"
+                + "\t\t\t\t\t\"onclick\": \"CreateNewDoc()\"\n"
+                + "\t\t\t\t},\n"
+                + "\t\t\t\t{\n"
+                + "\t\t\t\t\t\"value\": \"Open\",\n"
+                + "\t\t\t\t\t\"onclick\": \"OpenDoc()\"\n"
+                + "\t\t\t\t},\n"
+                + "\t\t\t\t{\n"
+                + "\t\t\t\t\t\"value\": \"Close\",\n"
+                + "\t\t\t\t\t\"onclick\": \"CloseDoc()\"\n"
+                + "\t\t\t\t}\n"
+                + "\t\t\t]\n"
+                + "\t\t}\n"
+                + "\t}\n"
+                + "}");
+
+        final List<String> target = JsonPathGenerator.from(source).generate();
+
+        assertThat(target).hasSize(8);
+        assertThat(target.get(0)).isEqualTo("$.menu.popup.menuitem[0].onclick=CreateNewDoc()");
+        assertThat(target.get(1)).isEqualTo("$.menu.popup.menuitem[0].value=New");
+        assertThat(target.get(2)).isEqualTo("$.menu.popup.menuitem[1].onclick=OpenDoc()");
+        assertThat(target.get(3)).isEqualTo("$.menu.popup.menuitem[1].value=Open");
+        assertThat(target.get(4)).isEqualTo("$.menu.popup.menuitem[2].onclick=CloseDoc()");
+        assertThat(target.get(5)).isEqualTo("$.menu.popup.menuitem[2].value=Close");
+        assertThat(target.get(6)).isEqualTo("$.menu.id=file");
+        assertThat(target.get(7)).isEqualTo("$.menu.value=File");
+    }
+
+    @Test
+    public void testJsonComplex() {
+        final List<String> target = JsonPathGenerator.from(getComplexJsonObject()).generate();
+
+        assertThat(target.get(0)).isEqualTo("$.menu.simpleArray=[\"ABC\",\"DEF\",\"GHI\"]");
+        assertThat(target.get(1)).isEqualTo("$.menu.popup.menuitem[0].onclick=CreateNewDoc()");
+        assertThat(target.get(2)).isEqualTo("$.menu.popup.menuitem[0].value[0].name=onulo");
+        assertThat(target.get(3)).isEqualTo("$.menu.popup.menuitem[0].value[0].id=5");
+        assertThat(target.get(4)).isEqualTo("$.menu.popup.menuitem[0].value[1].name=peto");
+        assertThat(target.get(5)).isEqualTo("$.menu.popup.menuitem[0].value[1].id=5");
+        assertThat(target.get(6)).isEqualTo("$.menu.popup.menuitem[1].onclick=OpenDoc()");
+        assertThat(target.get(7)).isEqualTo("$.menu.popup.menuitem[1].value[0].name=onulo");
+        assertThat(target.get(8)).isEqualTo("$.menu.popup.menuitem[1].value[0].id=5");
+        assertThat(target.get(9)).isEqualTo("$.menu.popup.menuitem[1].value[1].name=peto");
+        assertThat(target.get(10)).isEqualTo("$.menu.popup.menuitem[1].value[1].id=5");
+        assertThat(target.get(11)).isEqualTo("$.menu.popup.menuitem[2].onclick=CloseDoc()");
+        assertThat(target.get(12)).isEqualTo("$.menu.popup.menuitem[2].value[0].name=onulo");
+        assertThat(target.get(13)).isEqualTo("$.menu.popup.menuitem[2].value[0].id=5");
+        assertThat(target.get(14)).isEqualTo("$.menu.popup.menuitem[2].value[1].name=peto");
+        assertThat(target.get(15)).isEqualTo("$.menu.popup.menuitem[2].value[1].id=5");
+        assertThat(target.get(16)).isEqualTo("$.menu.id=file");
+        assertThat(target.get(17)).isEqualTo("$.menu.value=File");
+    }
+
+    private JSONObject getComplexJsonObject() {
         return new JSONObject("{\n" +
                 "  \"menu\": {\n" +
                 "    \"id\": \"file\",\n" +
@@ -98,238 +223,6 @@ public class JsonPathGeneratorTest {
                 "      ]\n" +
                 "    }\n" +
                 "  }\n" +
-                "}");
-    }
-
-    public JSONObject getJsonExample2(){
-        return new JSONObject("{\n" +
-                "  \"root\": [\n" +
-                "    {\n" +
-                "      \"_id\": \"5c670d34c54b8aa377861070\",\n" +
-                "      \"index\": 0,\n" +
-                "      \"guid\": \"76ba5707-95d6-407d-83ef-7a7f43f917d4\",\n" +
-                "      \"isActive\": true,\n" +
-                "      \"balance\": \"$1,681.63\",\n" +
-                "      \"picture\": \"http://placehold.it/32x32\",\n" +
-                "      \"age\": 24,\n" +
-                "      \"eyeColor\": \"green\",\n" +
-                "      \"name\": \"Edwards Miller\",\n" +
-                "      \"gender\": \"male\",\n" +
-                "      \"company\": \"NIPAZ\",\n" +
-                "      \"email\": \"edwardsmiller@nipaz.com\",\n" +
-                "      \"phone\": \"+1 (989) 510-2332\",\n" +
-                "      \"address\": \"341 Times Placez, Unionville, Ohio, 1818\",\n" +
-                "      \"about\": \"Do enim laborum reprehenderit dolore incididunt proident. Sit nostrud sint quis incididunt deserunt nostrud mollit magna. Do nisi consectetur occaecat dolor exercitation aliquip aliqua incididunt aliquip ut magna.\\r\\n\",\n" +
-                "      \"registered\": \"2014-01-30T04:16:29 -01:00\",\n" +
-                "      \"latitude\": 86.215325,\n" +
-                "      \"longitude\": 37.951514,\n" +
-                "      \"tags\": [\n" +
-                "        \"dolor\",\n" +
-                "        \"elit\",\n" +
-                "        \"sit\",\n" +
-                "        \"sit\",\n" +
-                "        \"officia\",\n" +
-                "        \"aliquip\",\n" +
-                "        \"anim\"\n" +
-                "      ],\n" +
-                "      \"friends\": [\n" +
-                "        {\n" +
-                "          \"id\": 0,\n" +
-                "          \"name\": \"Ruthie Banks\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 1,\n" +
-                "          \"name\": \"Joan Gregory\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 2,\n" +
-                "          \"name\": \"Shelley Branch\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"greeting\": \"Hello, Edwards Miller! You have 8 unread messages.\",\n" +
-                "      \"favoriteFruit\": \"strawberry\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"_id\": \"5c670d34cde16f3e65ac4d17\",\n" +
-                "      \"index\": 1,\n" +
-                "      \"guid\": \"034e96b4-733f-4cd2-965c-25dca95d564d\",\n" +
-                "      \"isActive\": true,\n" +
-                "      \"balance\": \"$1,318.03\",\n" +
-                "      \"picture\": \"http://placehold.it/32x32\",\n" +
-                "      \"age\": 27,\n" +
-                "      \"eyeColor\": \"green\",\n" +
-                "      \"name\": \"Briggs Velez\",\n" +
-                "      \"gender\": \"male\",\n" +
-                "      \"company\": \"FUTURIZE\",\n" +
-                "      \"email\": \"briggsvelez@futurize.com\",\n" +
-                "      \"phone\": \"+1 (931) 518-3282\",\n" +
-                "      \"address\": \"233 Banner Avenue, Fostoria, Kentucky, 4696\",\n" +
-                "      \"about\": \"Laborum ea aliqua enim ex veniam non elit laborum ea. Mollit ipsum anim irure magna ex duis nulla amet consequat. Dolore laborum cillum veniam in tempor incididunt dolor. Culpa nostrud pariatur cupidatat est nulla laborum excepteur proident aliqua reprehenderit id esse pariatur. Pariatur officia quis quis officia sit. Laboris et cupidatat irure officia reprehenderit voluptate consectetur aute labore id pariatur tempor ex adipisicing. Cillum incididunt labore culpa nostrud.\\r\\n\",\n" +
-                "      \"registered\": \"2018-11-10T06:09:29 -01:00\",\n" +
-                "      \"latitude\": 38.84154,\n" +
-                "      \"longitude\": 62.265998,\n" +
-                "      \"tags\": [\n" +
-                "        \"ut\",\n" +
-                "        \"et\",\n" +
-                "        \"dolore\",\n" +
-                "        \"quis\",\n" +
-                "        \"nulla\",\n" +
-                "        \"exercitation\",\n" +
-                "        \"Lorem\"\n" +
-                "      ],\n" +
-                "      \"friends\": [\n" +
-                "        {\n" +
-                "          \"id\": 0,\n" +
-                "          \"name\": \"Gina Allison\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 1,\n" +
-                "          \"name\": \"Luann Foreman\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 2,\n" +
-                "          \"name\": \"Simpson Edwards\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"greeting\": \"Hello, Briggs Velez! You have 7 unread messages.\",\n" +
-                "      \"favoriteFruit\": \"apple\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"_id\": \"5c670d34b071b65d144476f6\",\n" +
-                "      \"index\": 2,\n" +
-                "      \"guid\": \"761353c0-b35e-4493-8527-315f1daea82a\",\n" +
-                "      \"isActive\": true,\n" +
-                "      \"balance\": \"$3,990.33\",\n" +
-                "      \"picture\": \"http://placehold.it/32x32\",\n" +
-                "      \"age\": 23,\n" +
-                "      \"eyeColor\": \"green\",\n" +
-                "      \"name\": \"Nguyen Gibbs\",\n" +
-                "      \"gender\": \"male\",\n" +
-                "      \"company\": \"MAGNEMO\",\n" +
-                "      \"email\": \"nguyengibbs@magnemo.com\",\n" +
-                "      \"phone\": \"+1 (950) 550-2919\",\n" +
-                "      \"address\": \"250 Bond Street, Hailesboro, Connecticut, 9365\",\n" +
-                "      \"about\": \"Anim aute quis amet voluptate ex enim consectetur occaecat non culpa minim laborum cupidatat. Voluptate id dolore et deserunt Lorem deserunt anim amet voluptate aute anim laboris enim consequat. Mollit commodo in aliqua consectetur ad.\\r\\n\",\n" +
-                "      \"registered\": \"2016-01-28T05:48:14 -01:00\",\n" +
-                "      \"latitude\": -32.297054,\n" +
-                "      \"longitude\": -80.58663,\n" +
-                "      \"tags\": [\n" +
-                "        \"esse\",\n" +
-                "        \"amet\",\n" +
-                "        \"aute\",\n" +
-                "        \"ea\",\n" +
-                "        \"velit\",\n" +
-                "        \"officia\",\n" +
-                "        \"dolor\"\n" +
-                "      ],\n" +
-                "      \"friends\": [\n" +
-                "        {\n" +
-                "          \"id\": 0,\n" +
-                "          \"name\": \"Julia Rodriquez\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 1,\n" +
-                "          \"name\": \"Cannon Sherman\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 2,\n" +
-                "          \"name\": \"Natalia Knapp\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"greeting\": \"Hello, Nguyen Gibbs! You have 5 unread messages.\",\n" +
-                "      \"favoriteFruit\": \"strawberry\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"_id\": \"5c670d345aa052574e9ff0a3\",\n" +
-                "      \"index\": 3,\n" +
-                "      \"guid\": \"7cf6f333-d965-4b9a-a3b5-0bfd2b4d4c45\",\n" +
-                "      \"isActive\": true,\n" +
-                "      \"balance\": \"$3,514.21\",\n" +
-                "      \"picture\": \"http://placehold.it/32x32\",\n" +
-                "      \"age\": 26,\n" +
-                "      \"eyeColor\": \"green\",\n" +
-                "      \"name\": \"Carmella Nixon\",\n" +
-                "      \"gender\": \"female\",\n" +
-                "      \"company\": \"IMAGEFLOW\",\n" +
-                "      \"email\": \"carmellanixon@imageflow.com\",\n" +
-                "      \"phone\": \"+1 (807) 425-2470\",\n" +
-                "      \"address\": \"157 Lincoln Road, Dante, New Hampshire, 9769\",\n" +
-                "      \"about\": \"In aliquip sunt commodo ipsum esse aute. Consequat sunt proident aliquip esse nulla dolor adipisicing ad enim ad ut velit qui. Aute magna aliqua magna dolore ea commodo incididunt id quis esse.\\r\\n\",\n" +
-                "      \"registered\": \"2017-04-01T03:18:48 -02:00\",\n" +
-                "      \"latitude\": 54.512984,\n" +
-                "      \"longitude\": -117.328352,\n" +
-                "      \"tags\": [\n" +
-                "        \"ea\",\n" +
-                "        \"eu\",\n" +
-                "        \"pariatur\",\n" +
-                "        \"Lorem\",\n" +
-                "        \"ullamco\",\n" +
-                "        \"anim\",\n" +
-                "        \"exercitation\"\n" +
-                "      ],\n" +
-                "      \"friends\": [\n" +
-                "        {\n" +
-                "          \"id\": 0,\n" +
-                "          \"name\": \"Ester Morrison\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 1,\n" +
-                "          \"name\": \"Deleon Small\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 2,\n" +
-                "          \"name\": \"Briana Haley\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"greeting\": \"Hello, Carmella Nixon! You have 4 unread messages.\",\n" +
-                "      \"favoriteFruit\": \"banana\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"_id\": \"5c670d34563a9a6bd1b816b7\",\n" +
-                "      \"index\": 4,\n" +
-                "      \"guid\": \"f6955c23-791c-4e41-93e6-d232a8c5254e\",\n" +
-                "      \"isActive\": false,\n" +
-                "      \"balance\": \"$3,176.25\",\n" +
-                "      \"picture\": \"http://placehold.it/32x32\",\n" +
-                "      \"age\": 38,\n" +
-                "      \"eyeColor\": \"green\",\n" +
-                "      \"name\": \"Eugenia Bradshaw\",\n" +
-                "      \"gender\": \"female\",\n" +
-                "      \"company\": \"HINWAY\",\n" +
-                "      \"email\": \"eugeniabradshaw@hinway.com\",\n" +
-                "      \"phone\": \"+1 (971) 520-3632\",\n" +
-                "      \"address\": \"189 Monument Walk, Galesville, Alaska, 7574\",\n" +
-                "      \"about\": \"Ex ut velit nisi Lorem amet adipisicing reprehenderit pariatur est tempor. Proident eu exercitation irure anim sunt et nulla. Aliquip reprehenderit fugiat tempor duis dolore sit nisi. Veniam ad id aliquip magna aliquip adipisicing eu cillum consectetur fugiat quis officia Lorem. Esse dolor officia sit Lorem adipisicing ad minim commodo voluptate sunt sit cillum eiusmod ea. Ut est id sint anim. Adipisicing adipisicing aute commodo amet elit cupidatat consequat quis.\\r\\n\",\n" +
-                "      \"registered\": \"2014-04-21T05:25:15 -02:00\",\n" +
-                "      \"latitude\": -50.599362,\n" +
-                "      \"longitude\": 4.874998,\n" +
-                "      \"tags\": [\n" +
-                "        \"aliqua\",\n" +
-                "        \"veniam\",\n" +
-                "        \"duis\",\n" +
-                "        \"consectetur\",\n" +
-                "        \"reprehenderit\",\n" +
-                "        \"culpa\",\n" +
-                "        \"in\"\n" +
-                "      ],\n" +
-                "      \"friends\": [\n" +
-                "        {\n" +
-                "          \"id\": 0,\n" +
-                "          \"name\": \"Camacho Hutchinson\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 1,\n" +
-                "          \"name\": \"Huff Calhoun\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"id\": 2,\n" +
-                "          \"name\": \"Sophia Patton\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"greeting\": \"Hello, Eugenia Bradshaw! You have 8 unread messages.\",\n" +
-                "      \"favoriteFruit\": \"strawberry\"\n" +
-                "    }\n" +
-                "  ]\n" +
                 "}");
     }
 }

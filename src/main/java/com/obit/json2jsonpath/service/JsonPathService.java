@@ -1,4 +1,4 @@
-package com.obit.json2jsonpath.services;
+package com.obit.json2jsonpath.service;
 
 import java.util.List;
 import org.json.JSONObject;

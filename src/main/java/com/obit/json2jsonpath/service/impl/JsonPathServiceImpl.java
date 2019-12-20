@@ -1,7 +1,7 @@
-package com.obit.json2jsonpath.services.impl;
+package com.obit.json2jsonpath.service.impl;
 
 import com.obit.json2jsonpath.component.JsonPathGenerator;
-import com.obit.json2jsonpath.services.JsonPathService;
+import com.obit.json2jsonpath.service.JsonPathService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -13,8 +13,7 @@ public class JsonPathServiceImpl implements JsonPathService {
 
     @Override
     public List<String> generateJsonPaths(JSONObject json) {
-        JsonPathGenerator jsonPathGenerator = new JsonPathGenerator(json);
-        final List<String> jsonPaths = jsonPathGenerator.generate();
+        final List<String> jsonPaths = JsonPathGenerator.from(json).generate();
         log.info("Generating json paths for json object SUCCESSFUL. json object: {}, generated json paths: {}", json, jsonPaths);
         return jsonPaths;
     }

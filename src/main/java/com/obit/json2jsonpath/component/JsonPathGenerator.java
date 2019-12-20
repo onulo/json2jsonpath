@@ -2,53 +2,55 @@ package com.obit.json2jsonpath.component;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import lombok.Getter;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-@RequiredArgsConstructor
-public class JsonPathGenerator {
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class JsonPathGenerator {
 
     private static final String PREFIX = "$.";
     private static final String DELIMITER = ".";
     private static final String EQUALS = "=";
 
-    private final JSONObject jsonObject;
+    private final JSONObject json;
+
     private final List<PathElement> pathElements = new ArrayList<>();
+    private final List<String> results = new ArrayList<>();
 
-    private final List<String> output = new ArrayList<>();
-
-    public List<String> generate() {
-        iterateOverJson(jsonObject);
-        return Collections.unmodifiableList(output);
+    public static JsonPathGenerator from(JSONObject json) {
+        return new JsonPathGenerator(json);
     }
 
-    private void iterateOverJson(JSONObject jsonObject) {
-        Iterator<String> elements = jsonObject.keys();
-        while (elements.hasNext()) {
-            String elementName = elements.next();
-            pathElements.add(new PathElement(elementName));
-            Object jsonElement = jsonObject.get(elementName);
+    public List<String> generate() {
+        process(json);
+        return Collections.unmodifiableList(results);
+    }
+
+    private void process(final JSONObject jsonObject) {
+        jsonObject.keys().forEachRemaining(jsonElementName -> {
+
+            pathElements.add(new PathElement(jsonElementName));
+            final Object jsonElement = jsonObject.get(jsonElementName);
 
             if (jsonElement instanceof JSONObject) {
-                iterateOverJson((JSONObject) jsonElement);
+                process((JSONObject) jsonElement);
             } else if (isComplexJsonArray(jsonElement)) {
                 for (Object arrayElement : (JSONArray) jsonElement) {
                     if (arrayElement instanceof JSONObject) {
                         incrementArrayIndexInPathElement();
-                        iterateOverJson((JSONObject) arrayElement);
+                        process((JSONObject) arrayElement);
                     } else {
-                        printFormatedPath(arrayElement.toString());
+                        appendFormattedPath(arrayElement.toString());
                     }
                 }
             } else {
-                printFormatedPath(jsonElement.toString());
+                appendFormattedPath(jsonElement.toString());
             }
             removeLastElement(pathElements);
-        }
+        });
     }
 
     private void incrementArrayIndexInPathElement() {
@@ -61,33 +63,34 @@ public class JsonPathGenerator {
         pathElements.get(pathElements.size() - 1).setArrayIndex(arrayIndex);
     }
 
-    private boolean isComplexJsonArray(Object object) {
-        return object instanceof JSONArray &&
-                !((JSONArray) object).isEmpty() &&
-                ((JSONArray) object).get(0) instanceof JSONObject;
+    private static boolean isComplexJsonArray(Object jsonObject) {
+        return (jsonObject instanceof JSONArray) && !((JSONArray) jsonObject).isEmpty() && (((JSONArray) jsonObject)
+                .get(0) instanceof JSONObject);
     }
 
-    private List<?> removeLastElement(List<?> list) {
+    private static void removeLastElement(List<?> list) {
         list.remove(list.size() - 1);
-        return list;
     }
 
-    private void printFormatedPath(String value) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(PREFIX);
-        for (int i = 0; i < pathElements.size(); i++) {
-            stringBuilder.append(pathElements.get(i).getName());
-            if (pathElements.get(i).getArrayIndex() != null) {
-                stringBuilder.append("[" + pathElements.get(i).getArrayIndex() + "]");
+    private void appendFormattedPath(String value) {
+        final StringBuilder formattedPath = new StringBuilder();
+        formattedPath.append(PREFIX);
+
+        int pathElementIndex = 0;
+        for (PathElement pathElement : pathElements) {
+            formattedPath.append(pathElement.getName());
+
+            if (pathElement.getArrayIndex() != null) {
+                formattedPath.append("[" + pathElement.getArrayIndex() + "]");
             }
 
-            if (i != pathElements.size() - 1) {
-                stringBuilder.append(DELIMITER);
-
+            if (pathElementIndex != (pathElements.size() - 1)) {
+                formattedPath.append(DELIMITER);
             }
+            pathElementIndex++;
         }
-        stringBuilder.append(EQUALS);
-        stringBuilder.append(value);
-        output.add(stringBuilder.toString());
+        formattedPath.append(EQUALS);
+        formattedPath.append(value);
+        results.add(formattedPath.toString());
     }
 }
