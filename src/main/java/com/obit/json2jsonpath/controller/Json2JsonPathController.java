@@ -1,7 +1,8 @@
 package com.obit.json2jsonpath.controller;
 
+import com.obit.json2jsonpath.component.JsonPathResponse;
 import com.obit.json2jsonpath.service.JsonPathService;
-import java.util.List;
+import java.util.Arrays;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,7 +24,12 @@ public class Json2JsonPathController {
 
     @CrossOrigin
     @PostMapping(JSON_2_JSON_PATH_BASE_URL)
-    public List<String> generateJsonPaths(@RequestBody String json) {
-        return jsonPathService.generateJsonPaths(new JSONObject(json));
+    public JsonPathResponse generateJsonPaths(@RequestBody String json) {
+        try {
+            return JsonPathResponse.builder()
+                    .jsonPaths(jsonPathService.generateJsonPaths(new JSONObject(json))).build();
+        } catch (Exception e) {
+            return JsonPathResponse.builder().errors(Arrays.asList(e.getMessage())).build();
+        }
     }
 }
